@@ -1,0 +1,18 @@
+/* ChatSidebar.module.css */
+
+/* Show context menu button on row hover */
+.convRow:hover .convMoreBtn {
+  opacity: 1 !important;
+}
+
+/* Typing dots animation */
+@keyframes typingBounce {
+  0%, 60%, 100% {
+    transform: translateY(0);
+    opacity: 0.5;
+  }
+  30% {
+    transform: translateY(-3px);
+    opacity: 1;
+  }
+}
