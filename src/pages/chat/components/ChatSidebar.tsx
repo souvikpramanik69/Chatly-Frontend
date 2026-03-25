@@ -6,16 +6,18 @@ import {
   Avatar,
   Badge,
   ScrollArea,
-  Divider,
   UnstyledButton,
   Flex,
   Button,
   Modal,
   TextInput,
 } from "@mantine/core";
+import Cookies from "js-cookie";
 import { useDisclosure } from "@mantine/hooks";
 import { IconSearch } from "@tabler/icons-react";
 import { useUsers } from "../../../hooks/useUsers";
+import { useUserStore } from "../../../store/useUserStore";
+import { useNavigate } from "react-router-dom";
 // ─── Static Data ─────────────────────────────────────────────
 const CONVERSATIONS = [
   {
@@ -49,28 +51,9 @@ const CONVERSATIONS = [
 ];
 
 
-const contacts = [
-  { id: 1, name: "John Doe", email: "john@example.com" },
-  { id: 2, name: "Jane Smith", email: "jane@example.com" },
-  { id: 3, name: "Alex Roy", email: "alex@example.com" },
-  { id: 4, name: "Emma Watson", email: "emma@example.com" },
-  { id: 5, name: "Chris Evans", email: "chris@example.com" },
-  { id: 6, name: "Sophia Lee", email: "sophia@example.com" },
-  { id: 7, name: "Michael Brown", email: "michael@example.com" },
-  { id: 8, name: "Olivia Davis", email: "olivia@example.com" },
-  { id: 9, name: "Daniel Wilson", email: "daniel@example.com" },
-  { id: 10, name: "Isabella Moore", email: "isabella@example.com" },
-  { id: 11, name: "Ethan Taylor", email: "ethan@example.com" },
-  { id: 12, name: "Ava Anderson", email: "ava@example.com" },
-  { id: 13, name: "Noah Thomas", email: "noah@example.com" },
-  { id: 14, name: "Mia Jackson", email: "mia@example.com" },
-  { id: 15, name: "Liam White", email: "liam@example.com" },
-];
 
 // ─── Conversation Item ───────────────────────────────────────
 function ConversationItem({ conv }: any) {
-
-
 
   return (
     <UnstyledButton
@@ -116,8 +99,14 @@ function ConversationItem({ conv }: any) {
 export default function ChatSidebar() {
     const [opened, { open, close }] = useDisclosure(false);
     const {data:userData} = useUsers();
+    const navigate = useNavigate();
+    const {removeData} = useUserStore();
+  const logoutHandler = () =>{
+    removeData();
+    Cookies.remove('access_token');
+    navigate('/login')
+  }
 
-    console.log("User data " , userData?.payload?.data?.rows)
 
   return (
     <Box
@@ -159,7 +148,7 @@ export default function ChatSidebar() {
           <Avatar radius="xl" color="violet">
             Y
           </Avatar>
-          <Text size="sm">You</Text>
+          <Button onClick={logoutHandler} bg={'violet'} h={30} radius={'lg'} size="sm">Logout</Button>
         </Group>
       </Box>
      

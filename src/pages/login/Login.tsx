@@ -1,4 +1,5 @@
 import { useState } from "react";
+import Cookies from 'js-cookie'
 import {
   Box,
   Flex,
@@ -9,12 +10,52 @@ import {
   Stack,
 } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
+import { loginSchema, type LoginFormData } from "./schema/loginSchema";
+import { Controller, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
+import { loginService, type loginPayload } from "./services/login.service";
+import toast from "react-hot-toast";
+import { useUserStore } from "../../store/useUserStore";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
+  const {
+    register,
+    handleSubmit,
+    control,
+    formState: { errors },
+  } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+  });
+  const {setData} = useUserStore();
 
+  const loginMuatation = useMutation({
+    mutationFn: (payload: loginPayload) => loginService(payload),
+    onSuccess: (data) => {
+      console.log("Data ", data)
+      if(data?.payload?.success){
+      console.log("Login Success", data);
+      Cookies.set('access_token', 'new_Asanklnsa_28ueiwhkd');
+      navigate("/chat");
+      toast.success("Login Success");
+      setData(data?.payload?.data)
+      }
+      else {
+        toast.error(data?.response?.data?.message);
+      }
+
+    },
+    onError: (err) => {
+      toast.error("Login Failed");
+    }
+  })
+
+  const onSubmit = (data: LoginFormData) => {
+         loginMuatation.mutate(data);
+  };
   return (
     <Flex
       h="100vh" 
@@ -52,7 +93,7 @@ const LoginPage = () => {
       />
 
       {/* 💳 Card */}
-      <Box
+      <Box onSubmit={handleSubmit(onSubmit)} component="form"
         p="xl"
         style={{
           width: 460,
@@ -95,7 +136,8 @@ const LoginPage = () => {
           </Text>
 
           {/* Inputs */}
-          <TextInput
+<Stack> 
+            <TextInput {...register("email")}
             label="Email"
             placeholder="Enter your email"
             value={email}
@@ -109,12 +151,16 @@ const LoginPage = () => {
               label: { color: "#aaa" },
             }}
           />
+          {errors.email && <Text color="red">{errors.email.message}</Text>}
+</Stack>
 
-          <PasswordInput
+<Stack>
+<Controller control={control} name="password" render={({field})=>(            <PasswordInput
             label="Password"
             placeholder="Enter your password"
-            value={password}
-            onChange={(e) => setPassword(e.currentTarget.value)}
+            onChange={(e) => {
+              field.onChange(e?.target?.value);
+            }}
             styles={{
               input: {
                 background: "#0f0f0f",
@@ -123,10 +169,12 @@ const LoginPage = () => {
               },
               label: { color: "#aaa" },
             }}
-          />
+          />)}  />
+          {errors.password && <Text color="red">{errors.password.message}</Text>}
+</Stack>
 
           {/* Button */}
-          <Button
+          <Button loading={loginMuatation.isPending} type="submit"
             fullWidth
             mt="sm"
             radius="xl"

@@ -10,17 +10,25 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@hookform/resolvers": "^5.2.2",
     "@mantine/core": "^8.3.18",
     "@mantine/hooks": "^8.3.18",
     "@tabler/icons": "^3.40.0",
     "@tabler/icons-react": "^3.40.0",
     "@tanstack/react-query": "^5.95.2",
+    "@types/cookie": "^1.0.0",
+    "@types/js-cookie": "^3.0.6",
     "axios": "^1.13.6",
     "dotenv": "^17.3.1",
+    "js-cookie": "^3.0.5",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
+    "react-hook-form": "^7.72.0",
+    "react-hot-toast": "^2.6.0",
     "react-router-dom": "^7.13.2",
-    "socket.io-client": "^4.8.3"
+    "socket.io-client": "^4.8.3",
+    "zod": "^4.3.6",
+    "zustand": "^5.0.12"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",
