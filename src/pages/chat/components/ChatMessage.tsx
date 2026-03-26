@@ -18,6 +18,26 @@ import { getAllMessagesByRoomId } from "../services/getAllMessagesByRoomId";
 
 // ─── Mock messages ─────────────────────────────────────────────
 
+export const TypingBubble = () => {
+  return (
+    <Flex
+      px="sm"
+      py="xs"
+      bg="#1f1f1f"
+      style={{
+        borderRadius: "16px",
+        width: "fit-content",
+      }}
+      gap={6}
+      align="center"
+    >
+      <Box className="dot" />
+      <Box className="dot" />
+      <Box className="dot" />
+    </Flex>
+  );
+};
+
 // ─── Message Bubble ────────────────────────────────────────────
 function Bubble({ msg }: any) {
   console.log("Message ", msg);
@@ -65,7 +85,10 @@ export default function ChatUI({ selectedChat }: ChatMessagePropsType) {
   const [value, setValue] = useState("");
   const [typing, setTyping] = useState<boolean>(false);
   const { data: profileData } = useUserProfile();
-
+  const bottomRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, typing]);
   const { data: messageData, isSuccess: isMessageDataSuccess } = useQuery({
     queryKey: ["messages", selectedChat?.id],
     queryFn: () => getAllMessagesByRoomId(selectedChat?.id),
@@ -224,10 +247,31 @@ export default function ChatUI({ selectedChat }: ChatMessagePropsType) {
           </Flex>
 
           {/* Messages */}
+          {/* <ScrollArea flex={1} styles={{ viewport: { padding: 16 } }}>
+            <>
+              {messages.map((msg) => (
+                <Bubble key={msg.id} msg={msg} />
+              ))}
+            </>
+          </ScrollArea> */}
+
           <ScrollArea flex={1} styles={{ viewport: { padding: 16 } }}>
-            {messages.map((msg) => (
-              <Bubble key={msg.id} msg={msg} />
-            ))}
+            <Flex direction="column" h="100%">
+              {/* Messages */}
+              <Flex direction="column" gap="sm">
+                {messages.map((msg) => (
+                  <Bubble key={msg.id} msg={msg} />
+                ))}
+              </Flex>
+
+              {/* 🔥 Push typing bubble to bottom */}
+              {typing && (
+                <Flex mt="10">
+                  <TypingBubble />
+                </Flex>
+              )}
+            </Flex>
+            <div ref={bottomRef} />
           </ScrollArea>
 
           {/* Input */}
