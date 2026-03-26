@@ -144,7 +144,7 @@ const roomUsers = isRoomDataSuccess && roomData?.payload?.data?.rows?.map((room:
         </Group>
       </Box>
      
-<Modal
+{isRoomDataSuccess && <Modal
   opened={opened}
   onClose={close}
   title={<Text fw={600} c="violet.4">Contacts</Text>}
@@ -186,7 +186,7 @@ const roomUsers = isRoomDataSuccess && roomData?.payload?.data?.rows?.map((room:
     {/* Contact List */}
     <ScrollArea scrollbarSize={8}  h={400}>
       <Stack gap="xs">
-        {userData?.payload?.data?.rows?.filter((user:any) => !roomUsers?.includes(user?.id)).map((user:any) => (
+        {userData?.payload?.data?.rows?.filter((user:any) => !roomUsers?.includes(user?.id))?.map((user:any) => (
           <Box
             key={user?.id}
             p="sm"
@@ -224,7 +224,7 @@ const roomUsers = isRoomDataSuccess && roomData?.payload?.data?.rows?.map((room:
     </ScrollArea>
   </Stack>
 </Modal>
-
+}
 
     </Box>
   );

@@ -8,6 +8,7 @@ import { MantineProvider } from '@mantine/core'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Toaster } from 'react-hot-toast';
 const client = new QueryClient();
+import './middlewares/axiosInterceptor.ts'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
