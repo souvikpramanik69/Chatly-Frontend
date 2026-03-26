@@ -2,7 +2,8 @@ import { useQuery } from "@tanstack/react-query"
 import { authConfig } from "../config/axios";
 
 export interface usersPropsTypes {
-    unwanted_user_id?:string | number
+    unwanted_user_id?:string | number,
+    enable:boolean | true
 }
 
 const getAllUserService = async(payload:usersPropsTypes) =>{
@@ -21,6 +22,7 @@ export const useUsers = (payload:usersPropsTypes) => {
         queryFn:()=> getAllUserService(payload),
         staleTime: 1000 * 60,
         retry: false,
-        refetchOnWindowFocus: false
+        refetchOnWindowFocus: false,
+        enabled:payload.enable
     })
 }   

@@ -1,9 +1,10 @@
 import axios from "axios";
 import { authConfig } from "../config/axios";
-
+import Cookies from "js-cookie";
 authConfig.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("accessToken");
+    
+    const token = Cookies.get("access_token");
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -25,26 +26,26 @@ authConfig.interceptors.response.use(
 
       try {
         // call refresh token API
-        const res = await axios.post(
-          "http://localhost:5000/api/auth/refresh",
-          {},
-          { withCredentials: true }
-        );
+        // const res = await axios.post(
+        //   "http://localhost:8001/api/auth/refresh",
+        //   {},
+        //   { withCredentials: true }
+        // );
 
-        const newAccessToken = res.data.accessToken;
+        // const newAccessToken = res.data.accessToken;
 
-        // store new token
-        localStorage.setItem("accessToken", newAccessToken);
+        // // store new token
+        // Cookies.set("access_token", newAccessToken);
 
-        // update header and retry original request
-        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+        // // update header and retry original request
+        // originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
 
-        return authConfig(originalRequest);
+        // return authConfig(originalRequest);
       } catch (err) {
         console.error("Refresh token failed");
 
         // logout user
-        localStorage.removeItem("accessToken");
+        Cookies.remove("access_token");
         window.location.href = "/login";
 
         return Promise.reject(err);

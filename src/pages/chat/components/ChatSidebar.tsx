@@ -11,14 +11,17 @@ import {
   Button,
   Modal,
   TextInput,
+  LoadingOverlay,
 } from "@mantine/core";
 import Cookies from "js-cookie";
 import { useDisclosure } from "@mantine/hooks";
-import { IconSearch } from "@tabler/icons-react";
+import { IconMessage2Filled, IconMessageCircle, IconMessageCircle2Filled, IconSearch } from "@tabler/icons-react";
 import { useUsers } from "../../../hooks/useUsers";
 import { useUserStore } from "../../../store/useUserStore";
 import { useNavigate } from "react-router-dom";
 import { useRooms } from "../../../hooks/useRooms";
+import { useUserProfile } from "../../../hooks/useUserProfile";
+import { useAddRoom } from "../../../hooks/useAddRoom";
 // ─── Static Data ─────────────────────────────────────────────
 
 
@@ -75,14 +78,17 @@ function ConversationItem({ conv,selectedChat,setSelectedChat }: converationProp
 
 export interface chatSidebarPropsTypes {
    selectedChat: any,
-   setSelectedChat: (data:any)=> void
+   setSelectedChat: (data:any)=> void,
+   setNewRoomReciverId?: (data:any)=> void,
+   newRoomRevicerId?:any
 }
 
 // ─── Sidebar ────────────────────────────────────────────────
-export default function ChatSidebar({selectedChat,setSelectedChat}:chatSidebarPropsTypes) {
+export default function ChatSidebar({selectedChat,setSelectedChat,setNewRoomReciverId,newRoomRevicerId}:chatSidebarPropsTypes) {
     const [opened, { open, close }] = useDisclosure(false);
     const {removeData,data} = useUserStore();
-    const {data:userData} = useUsers({unwanted_user_id:data?.id});
+    const {data:userProfile,isSuccess:isProfileDataSuccesss} = useUserProfile();
+    const {data:userData} = useUsers({unwanted_user_id:userProfile?.payload?.data?.id,enable:isProfileDataSuccesss});
     const navigate = useNavigate();
   const logoutHandler = () =>{
     removeData();
@@ -90,7 +96,9 @@ export default function ChatSidebar({selectedChat,setSelectedChat}:chatSidebarPr
     navigate('/login')
   }
 
-const {data:roomData,isSuccess:isRoomDataSuccess} = useRooms({user_id:data?.id});
+    const {mutate,isPending} = useAddRoom(newRoomRevicerId);
+
+const {data:roomData,isSuccess:isRoomDataSuccess} = useRooms({user_id:userProfile?.payload?.data?.id,enable:isProfileDataSuccesss});
 const roomUsers = isRoomDataSuccess && roomData?.payload?.data?.rows?.map((room:any) => room?.users[0]?.id);
 
 
@@ -187,7 +195,7 @@ const roomUsers = isRoomDataSuccess && roomData?.payload?.data?.rows?.map((room:
     <ScrollArea scrollbarSize={8}  h={400}>
       <Stack gap="xs">
         {userData?.payload?.data?.rows?.filter((user:any) => !roomUsers?.includes(user?.id))?.map((user:any) => (
-          <Box
+          <Flex  pos={'relative'} justify={'space-between'}
             key={user?.id}
             p="sm"
             style={{
@@ -218,7 +226,18 @@ const roomUsers = isRoomDataSuccess && roomData?.payload?.data?.rows?.map((room:
                 </Text>
               </div>
             </Group>
-          </Box>
+            <IconMessage2Filled onClick={()=>{
+           setNewRoomReciverId && setNewRoomReciverId(user?.id);
+            mutate();
+          }} color="#5f128f" stroke={2} />
+
+           {newRoomRevicerId === user?.id && <LoadingOverlay
+           visible={isPending}
+          zIndex={1000}
+          overlayProps={{ radius: 'sm', blur: 2 }}
+          loaderProps={{ color: 'pink', type: 'bars' }}
+        /> }      
+          </Flex>
         ))}
       </Stack>
     </ScrollArea>

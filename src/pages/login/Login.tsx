@@ -16,6 +16,7 @@ import { useMutation } from "@tanstack/react-query";
 import { loginService, type loginPayload } from "./services/login.service";
 import toast from "react-hot-toast";
 import { useUserStore } from "../../store/useUserStore";
+import { useUserProfile } from '../../hooks/useUserProfile';
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -28,20 +29,23 @@ const LoginPage = () => {
     resolver: zodResolver(loginSchema),
   });
   const {setData} = useUserStore();
-
+  const {refetch:refetchProfile} = useUserProfile();
   const loginMuatation = useMutation({
     mutationFn: (payload: loginPayload) => loginService(payload),
     onSuccess: (data) => {
       console.log("Data ", data)
       if(data?.payload?.success){
+        refetchProfile();
       console.log("Login Success", data);
-      Cookies.set('access_token', 'new_Asanklnsa_28ueiwhkd');
+      Cookies.set('access_token', data?.payload?.data?.access_token);
+      Cookies.set('refresh_token', data?.payload?.data?.refresh_token);
       navigate("/chat");
-      toast.success("Login Success");
+      toast.success(data?.payload?.message);
       setData(data?.payload?.data)
       }
       else {
-        toast.error(data?.response?.data?.message);
+        console.log("sdadsad",data?.payload?.message);
+        toast.error('dsad');
       }
 
     },

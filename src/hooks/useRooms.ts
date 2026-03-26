@@ -2,7 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 import { authConfig } from "../config/axios";
 
   export interface roomsPropsTypes{
-  user_id:string | number
+  user_id:string | number,
+  enable?:boolean | true
   }
   
   export const getAllRoomService = async(payload:roomsPropsTypes) =>{
@@ -20,5 +21,6 @@ import { authConfig } from "../config/axios";
     queryFn:()=> getAllRoomService({user_id:payload.user_id}),
     staleTime: 1000 * 60,
     retry: false,
-    refetchOnWindowFocus: false
+    refetchOnWindowFocus: false,
+    enabled:payload.enable
   })}

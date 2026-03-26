@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Box,
   Flex,
@@ -11,6 +11,7 @@ import {
   Stack,
   Button,
 } from "@mantine/core";
+import { socket } from "../../../config/socketConfig";
 
 // ─── Mock messages ─────────────────────────────────────────────
 const INITIAL_MESSAGES = [
@@ -22,6 +23,7 @@ const INITIAL_MESSAGES = [
 
 // ─── Message Bubble ────────────────────────────────────────────
 function Bubble({ msg }: any) {
+  console.log("Message " , msg)
   const isMe = msg.from === "me";
 
   return (
@@ -66,17 +68,36 @@ export default function ChatUI({selectedChat}:ChatMessagePropsType) {
   const [messages, setMessages] = useState(INITIAL_MESSAGES);
   const [value, setValue] = useState("");
 
-  const sendMessage = () => {
-    if (!value.trim()) return;
+const sendMessage = () => {
+  if (!value.trim()) return;
 
+  socket.emit("send-message", {
+    roomId: selectedChat,
+    message: value,
+  });
+
+  setMessages((prev) => [
+    ...prev,
+    { id: Date.now(), from: "me", text: value },
+  ]);
+
+  setValue("");
+};
+
+useEffect(() => {
+  socket.on("receive_message", (newMessage: any) => {
+    console.log("Receive " , newMessage)
     setMessages((prev) => [
       ...prev,
-      { id: Date.now(), from: "me", text: value },
+      { id: Date.now(), from: "other", text: newMessage },
     ]);
+  });
+  console.log("Receive message ", messages)
 
-    setValue("");
+  return () => {
+    socket.off("receive_message");
   };
-
+}, [socket.on]);
   return (
 
     <Box>

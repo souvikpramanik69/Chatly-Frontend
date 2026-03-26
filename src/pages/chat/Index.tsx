@@ -5,13 +5,13 @@ import { useEffect, useState } from "react";
 import { socket } from "../../config/socketConfig";
 
 const ChatApp = () => {
+  const [selectedChat, setSelectedChat] = useState();
 
-  const [selectedChat,setSelectedChat]=useState();
- 
+  const [newRoomRevicerId, setNewRoomReciverId] = useState();
 
   useEffect(() => {
     socket.connect();
-    console.log("Connected")
+    console.log("Connected");
 
     socket.on("connect", () => {
       console.log("Connected:", socket.id);
@@ -25,6 +25,13 @@ const ChatApp = () => {
       socket.disconnect();
     };
   }, []);
+
+ useEffect(() => {
+  if (selectedChat) {
+    console.log("Emitting room:", selectedChat); // debug
+    socket.emit("join-room", selectedChat);
+  }
+}, [selectedChat]);
 
 
   return (
@@ -42,7 +49,12 @@ const ChatApp = () => {
           height: "100%",
         }}
       >
-        <ChatSidebar selectedChat={selectedChat} setSelectedChat={setSelectedChat} />
+        <ChatSidebar
+          newRoomRevicerId={newRoomRevicerId}
+          setNewRoomReciverId={setNewRoomReciverId}
+          selectedChat={selectedChat}
+          setSelectedChat={setSelectedChat}
+        />
       </Grid.Col>
 
       <Grid.Col
