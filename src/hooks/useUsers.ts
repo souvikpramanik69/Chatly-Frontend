@@ -1,10 +1,13 @@
 import { useQuery } from "@tanstack/react-query"
 import { authConfig } from "../config/axios";
 
+export interface usersPropsTypes {
+    unwanted_user_id?:string | number
+}
 
-const getAllUserService = async() =>{
+const getAllUserService = async(payload:usersPropsTypes) =>{
     try{
-     const data = await authConfig.get('/users');
+     const data = await authConfig.get('/users?unwanted_user_id='+payload?.unwanted_user_id);
      return data?.data;
     }catch(err){
         return err;
@@ -12,10 +15,10 @@ const getAllUserService = async() =>{
 }
 
 
-export const useUsers = () => {
+export const useUsers = (payload:usersPropsTypes) => {
     return useQuery({
-        queryKey: ['users'],
-        queryFn: getAllUserService,
+        queryKey: ['users',payload],
+        queryFn:()=> getAllUserService(payload),
         staleTime: 1000 * 60,
         retry: false,
         refetchOnWindowFocus: false

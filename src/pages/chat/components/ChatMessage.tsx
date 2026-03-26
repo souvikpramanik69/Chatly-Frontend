@@ -8,6 +8,8 @@ import {
   ScrollArea,
   TextInput,
   ActionIcon,
+  Stack,
+  Button,
 } from "@mantine/core";
 
 // ─── Mock messages ─────────────────────────────────────────────
@@ -54,8 +56,13 @@ function Bubble({ msg }: any) {
   );
 }
 
+
+interface ChatMessagePropsType {
+  selectedChat:any
+}
+
 // ─── Main Chat UI ──────────────────────────────────────────────
-export default function ChatUI() {
+export default function ChatUI({selectedChat}:ChatMessagePropsType) {
   const [messages, setMessages] = useState(INITIAL_MESSAGES);
   const [value, setValue] = useState("");
 
@@ -71,9 +78,52 @@ export default function ChatUI() {
   };
 
   return (
-    <Flex
+
+    <Box>
+      {selectedChat == null || selectedChat == undefined ? 
+      
+     <Flex
+  h="100vh"
+  align="center"
+  justify="center"
+  style={{
+    background: "#0f0f0f",
+    color: "#fff",
+  }}
+>
+  <Stack align="center" gap="md" maw={420} ta="center">
+    {/* Icon */}
+    <Box
+      style={{
+        width: 80,
+        height: 80,
+        borderRadius: "50%",
+        background: "linear-gradient(135deg, #7c3aed, #a855f7)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        fontSize: 32,
+        fontWeight: 700,
+      }}
+    >
+      ✨
+    </Box>
+
+    {/* Title */}
+    <Text size="xl" fw={700} style={{ letterSpacing: "-0.02em" }}>
+      Start a New Conversation
+    </Text>
+
+    {/* Subtitle */}
+    <Text size="sm" c="dimmed">
+      No chat selected yet. Pick an existing conversation from the sidebar or start a new one to begin chatting.
+    </Text>
+
+
+  </Stack>
+</Flex> :     <Flex
       direction="column"
-      h="100%"
+      h="100vh"
       style={{
         background: "#0f0f0f",
         color: "#fff",
@@ -91,7 +141,7 @@ export default function ChatUI() {
       >
         <Avatar color="violet" radius="xl">P</Avatar>
         <Box ml={10}>
-          <Text size="sm" fw={600}>Priya</Text>
+          <Text size="sm" fw={600}>{selectedChat?.users[0]?.firstName} {selectedChat?.users[0]?.lastName} </Text>
           <Text size="xs" c="dimmed">Online</Text>
         </Box>
       </Flex>
@@ -141,6 +191,9 @@ export default function ChatUI() {
           </ActionIcon>
         </Flex>
       </Box>
-    </Flex>
+    </Flex>}
+
+    </Box>
+
   );
 }

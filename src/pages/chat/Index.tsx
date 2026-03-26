@@ -1,11 +1,12 @@
 import { Grid } from "@mantine/core";
 import ChatSidebar from "./components/ChatSidebar";
 import ChatMessagePanel from "./components/ChatMessage";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { socket } from "../../config/socketConfig";
 
 const ChatApp = () => {
 
+  const [selectedChat,setSelectedChat]=useState();
  
 
   useEffect(() => {
@@ -41,7 +42,7 @@ const ChatApp = () => {
           height: "100%",
         }}
       >
-        <ChatSidebar />
+        <ChatSidebar selectedChat={selectedChat} setSelectedChat={setSelectedChat} />
       </Grid.Col>
 
       <Grid.Col
@@ -50,7 +51,7 @@ const ChatApp = () => {
           height: "100vh",
         }}
       >
-        <ChatMessagePanel />
+        <ChatMessagePanel selectedChat={selectedChat} />
       </Grid.Col>
     </Grid>
   );
