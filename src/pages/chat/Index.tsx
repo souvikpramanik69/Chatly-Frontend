@@ -10,29 +10,26 @@ const ChatApp = () => {
   const [newRoomRevicerId, setNewRoomReciverId] = useState();
 
   useEffect(() => {
-    socket.connect();
-    console.log("Connected");
-
-    socket.on("connect", () => {
-      console.log("Connected:", socket.id);
-    });
+    if (!socket.connected) {
+      socket.connect();
+      console.log("Connected");
+    }
 
     socket.on("disconnect", () => {
       console.log("Disconnected");
     });
 
     return () => {
-      socket.disconnect();
+      socket.off("disconnect");
     };
   }, []);
 
- useEffect(() => {
-  if (selectedChat) {
-    console.log("Emitting room:", selectedChat); // debug
-    socket.emit("join-room", selectedChat);
-  }
-}, [selectedChat]);
-
+  useEffect(() => {
+    if (selectedChat) {
+      console.log("Emitting room:", selectedChat); // debug
+      socket.emit("join-room", selectedChat);
+    }
+  }, [selectedChat]);
 
   return (
     <Grid
