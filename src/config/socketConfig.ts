@@ -1,9 +1,9 @@
 import { io } from "socket.io-client";
 
 // backend URL
-const url = import.meta.env.SERVER_URL || "http://localhost:8001";
-// const url = import.meta.env.SERVER_URL || "https://hf3bn65j-8001.inc1.devtunnels.ms/";
-// change in production
+const url = import.meta.env.VITE_SERVER_URL;
+
+console.log("Urlll " , url)
 
 export const socket = io(url, {
   autoConnect: false, // control manually
