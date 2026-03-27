@@ -9,12 +9,12 @@ import {
   TextInput,
   ActionIcon,
   Stack,
-  Button,
 } from "@mantine/core";
 import { socket } from "../../../config/socketConfig";
 import { useUserProfile } from "../../../hooks/useUserProfile";
 import { useQuery } from "@tanstack/react-query";
 import { getAllMessagesByRoomId } from "../services/getAllMessagesByRoomId";
+import { IconArrowNarrowLeft } from "@tabler/icons-react";
 
 // ─── Mock messages ─────────────────────────────────────────────
 
@@ -40,7 +40,6 @@ export const TypingBubble = () => {
 
 // ─── Message Bubble ────────────────────────────────────────────
 function Bubble({ msg }: any) {
-  console.log("Message ", msg);
   const isMe = msg.from === "me";
 
   return (
@@ -77,10 +76,12 @@ function Bubble({ msg }: any) {
 
 interface ChatMessagePropsType {
   selectedChat: any;
+  setSelectedChat: (data: any) => void;
+  selectedRoomData: any
 }
 
 // ─── Main Chat UI ──────────────────────────────────────────────
-export default function ChatUI({ selectedChat }: ChatMessagePropsType) {
+export default function ChatUI({ selectedChat,setSelectedChat,selectedRoomData }: ChatMessagePropsType) {
   const [messages, setMessages] = useState<any[]>([]);
   const [value, setValue] = useState("");
   const [typing, setTyping] = useState<boolean>(false);
@@ -118,7 +119,6 @@ export default function ChatUI({ selectedChat }: ChatMessagePropsType) {
 
   useEffect(() => {
     socket.on("receive_message", (newMessage: any) => {
-      console.log(" New Message ", newMessage);
       if (newMessage?.typing) {
         setTyping(newMessage?.typing);
       } else {
@@ -170,6 +170,10 @@ export default function ChatUI({ selectedChat }: ChatMessagePropsType) {
       setMessages(data);
     }
   }, [messageData, isMessageDataSuccess]);
+
+ 
+
+
 
   return (
     <Box>
@@ -226,34 +230,33 @@ export default function ChatUI({ selectedChat }: ChatMessagePropsType) {
           {/* Header */}
           <Flex
             px="md"
-            py="sm"
+            py="sm" justify={'space-between'}
             align="center"
             style={{
               borderBottom: "1px solid #222",
             }}
           >
-            <Avatar color="violet" radius="xl">
+       <Flex>
+             <Avatar color="violet" radius="xl">
               P
             </Avatar>
             <Box ml={10}>
               <Text size="sm" fw={600}>
-                {selectedChat?.users[0]?.firstName}{" "}
-                {selectedChat?.users[0]?.lastName}{" "}
+                {selectedRoomData?.firstName}{" "}
+                {selectedRoomData?.lastName}{" "}
               </Text>
               <Text size="xs" c="dimmed">
                 {typing ? "Typing" : "Online"}
               </Text>
             </Box>
+       </Flex>
+
+       <IconArrowNarrowLeft style={{cursor:'pointer'}} onClick={()=>{
+        setSelectedChat(null)
+       }} stroke={2} />
+
           </Flex>
 
-          {/* Messages */}
-          {/* <ScrollArea flex={1} styles={{ viewport: { padding: 16 } }}>
-            <>
-              {messages.map((msg) => (
-                <Bubble key={msg.id} msg={msg} />
-              ))}
-            </>
-          </ScrollArea> */}
 
           <ScrollArea flex={1} styles={{ viewport: { padding: 16 } }}>
             <Flex direction="column" h="100%">
@@ -264,7 +267,6 @@ export default function ChatUI({ selectedChat }: ChatMessagePropsType) {
                 ))}
               </Flex>
 
-              {/* 🔥 Push typing bubble to bottom */}
               {typing && (
                 <Flex mt="10">
                   <TypingBubble />
@@ -274,7 +276,6 @@ export default function ChatUI({ selectedChat }: ChatMessagePropsType) {
             <div ref={bottomRef} />
           </ScrollArea>
 
-          {/* Input */}
           <Box
             p="sm"
             style={{

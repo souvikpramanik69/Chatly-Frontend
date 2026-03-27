@@ -4,7 +4,6 @@ import {
   Group,
   Text,
   Avatar,
-  Badge,
   ScrollArea,
   UnstyledButton,
   Flex,
@@ -12,14 +11,17 @@ import {
   Modal,
   TextInput,
   LoadingOverlay,
+  Menu,
 } from "@mantine/core";
 import Cookies from "js-cookie";
 import { useDisclosure } from "@mantine/hooks";
 import {
+  IconLogout,
   IconMessage2Filled,
-  IconMessageCircle,
-  IconMessageCircle2Filled,
+  IconPlus,
   IconSearch,
+  IconSettings,
+  IconUser,
 } from "@tabler/icons-react";
 import { useUsers } from "../../../hooks/useUsers";
 import { useUserStore } from "../../../store/useUserStore";
@@ -28,80 +30,18 @@ import { useRooms } from "../../../hooks/useRooms";
 import { useUserProfile } from "../../../hooks/useUserProfile";
 import { useAddRoom } from "../../../hooks/useAddRoom";
 import { socket } from "../../../config/socketConfig";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { ConversationItem } from "./ConversationItem";
 // ─── Static Data ─────────────────────────────────────────────
 
-interface converationPropsTypes extends chatSidebarPropsTypes {
-  conv: any;
-}
 
-// ─── Conversation Item ───────────────────────────────────────
-function ConversationItem({
-  conv,
-  selectedChat,
-  setSelectedChat,
-}: converationPropsTypes) {
-  const { data: userProfile, isSuccess } = useUserProfile();
-  console.log("first", userProfile?.payload?.data?.id);
-  console.log("first", conv?.users);
-  const userData =
-    isSuccess &&
-    conv?.users
-      ?.filter(
-        (item: any) =>
-          String(item?.id) != String(userProfile?.payload?.data?.id),
-      )
-      .map((value: any) => value);
-  console.log("Userssssss ", userData);
-  return (
-    <UnstyledButton
-      onClick={() => {
-        setSelectedChat(conv);
-      }}
-      style={{
-        width: "100%",
-        padding: "10px",
-        borderRadius: 10,
-        transition: "0.2s",
-      }}
-      bg={selectedChat?.id === conv?.id ? "#a445e82d" : "transparent"}
-    >
-      <Group align="flex-start" gap={10} wrap="nowrap">
-        <Avatar radius="xl" color="violet">
-          {userData[0]?.firstName?.charAt(0)}
-        </Avatar>
-
-        <Flex>
-          <Group justify="space-between" wrap="nowrap">
-            <Text mt={7} size="sm" fw={500} c="white">
-              {userData[0]?.firstName} {userData[0]?.lastName}
-            </Text>
-
-            {/* {conv.unread > 0 ? (
-              <Badge size="xs" color="violet">
-                {conv.unread}
-              </Badge>
-            ) : (
-              <Text size="xs" c="dimmed">
-                {conv.time}
-              </Text>
-            )} */}
-          </Group>
-
-          <Text size="xs" c="dimmed" truncate>
-            {conv.preview}
-          </Text>
-        </Flex>
-      </Group>
-    </UnstyledButton>
-  );
-}
 
 export interface chatSidebarPropsTypes {
   selectedChat: any;
   setSelectedChat: (data: any) => void;
   setNewRoomReciverId?: (data: any) => void;
   newRoomRevicerId?: any;
+  setSelectedRoomData?: (data: any) => void
 }
 
 // ─── Sidebar ────────────────────────────────────────────────
@@ -110,6 +50,7 @@ export default function ChatSidebar({
   setSelectedChat,
   setNewRoomReciverId,
   newRoomRevicerId,
+  setSelectedRoomData
 }: chatSidebarPropsTypes) {
   const [opened, { open, close }] = useDisclosure(false);
   const { removeData, data } = useUserStore();
@@ -126,8 +67,10 @@ export default function ChatSidebar({
     Cookies.remove("refresh_token");
     navigate("/login");
   };
+  
 
   const { mutate, isPending } = useAddRoom(newRoomRevicerId);
+  
 
   const {
     data: roomData,
@@ -147,9 +90,10 @@ export default function ChatSidebar({
       )
       .map((room: any) => room?.users[0]?.id);
 
+      console.log("Room users id " , roomUsers)
+
   useEffect(() => {
     socket.on("new-room-created", (message) => {
-      console.log("New Messages ===== ", message);
       if (message?.userId) {
         if (
           String(message?.userId) === String(userProfile?.payload?.data?.id)
@@ -163,6 +107,7 @@ export default function ChatSidebar({
     };
   }, [socket]);
 
+
   return (
     <Box
       h="100vh"
@@ -175,27 +120,54 @@ export default function ChatSidebar({
       }}
     >
       {/* Header */}
-      <Flex justify={"space-between"} px="md" py="md">
-        <Text fw={600} size="lg">
-          ({userProfile?.payload?.data?.firstName}{" "}
-          {userProfile?.payload?.data?.lastName}) Messages
-        </Text>
-        <Button
-          onClick={() => {
-            open();
-            console.log("User ", data);
-          }}
-          bg={"violet"}
-          h={"25px"}
-          radius={"lg"}
-          w={"70px"}
-        >
-          New
-        </Button>
-      </Flex>
+
+
+<Flex
+  justify="space-between"
+  align="center"
+  px="md"
+  py="sm"
+  style={{
+    borderBottom: "1px solid #2a2a2a",
+    background: "linear-gradient(90deg, #0f0f0f, #1a1a1a)",
+  }}
+>
+  {/* Left Section */}
+  <Flex align="center" gap="sm">
+
+
+    <Text size="lg" lts={1} fw={700} c="white">
+      Chats
+    </Text>
+  </Flex>
+
+  {/* Right Section */}
+  <Button
+    onClick={() => {
+      open();
+    }}
+    size="xs"
+    radius="xl"
+    leftSection={<IconPlus size={14} />}
+    styles={{
+      root: {
+        background: "linear-gradient(135deg, #7c3aed, #5b21b6)",
+        transition: "all 0.2s ease",
+      },
+    }}
+    style={{
+      "&:hover": {
+        transform: "scale(1.05)",
+        boxShadow: "0 4px 12px rgba(124, 58, 237, 0.4)",
+      },
+    }}
+  >
+    New
+  </Button>
+</Flex>
 
       {/* List */}
-      <ScrollArea style={{ flex: 1 }} px="xs">
+      <ScrollArea pt={10} style={{ flex: 1 }} px="xs">
         <Stack gap={4}>
           {roomData?.payload?.data?.rows
             ?.filter(
@@ -205,40 +177,79 @@ export default function ChatSidebar({
                 String(item?.id).split("_")[1] ===
                   userProfile?.payload?.data?.id,
             )
-            .map((room: any) => (
-              <ConversationItem
+            .map((room: any) => {
+              console.log("Rooms")
+              return (
+              <ConversationItem setSelectedRoomData={setSelectedRoomData}
                 selectedChat={selectedChat}
                 setSelectedChat={setSelectedChat}
                 key={room.id}
                 conv={room}
               />
-            ))}
+            )
+            })}
         </Stack>
       </ScrollArea>
 
       {/* Footer */}
-      <Box
-        px="md"
-        py="sm"
-        style={{
-          borderTop: "1px solid #222",
-        }}
-      >
-        <Group>
-          <Avatar radius="xl" color="violet">
-            Y
-          </Avatar>
-          <Button
-            onClick={logoutHandler}
-            bg={"violet"}
-            h={30}
-            radius={"lg"}
-            size="sm"
-          >
-            Logout
-          </Button>
+    <Box
+  px="md"
+  py="sm"
+  style={{
+    borderTop: "1px solid #222",
+    background: "#0f0f0f",
+  }}
+>
+  <Menu shadow="md" width={200} position="top-end">
+    <Menu.Target>
+      <UnstyledButton style={{ width: "100%" }}>
+        <Group justify="space-between">
+          <Group gap="sm">
+            <Avatar radius="xl" color="violet">
+              {userProfile?.payload?.data?.firstName?.[0]}
+            </Avatar>
+
+            <div>
+              <Text size="sm" fw={500} c="gray.2">
+                {userProfile?.payload?.data?.firstName}
+              </Text>
+              <Text size="xs" c="dimmed">
+                View Profile
+              </Text>
+            </div>
+          </Group>
         </Group>
-      </Box>
+      </UnstyledButton>
+    </Menu.Target>
+
+    <Menu.Dropdown
+      styles={{
+        dropdown: {
+          background: "#d4c2c2",
+          border: "1px solid #2a2a2a",
+        },
+      }}
+    >
+      <Menu.Item leftSection={<IconUser size={16} />}>
+        Profile
+      </Menu.Item>
+
+      <Menu.Item leftSection={<IconSettings size={16} />}>
+        Settings
+      </Menu.Item>
+
+      <Menu.Divider />
+
+      <Menu.Item
+        color="red"
+        leftSection={<IconLogout size={16} />}
+        onClick={logoutHandler}
+      >
+        Logout
+      </Menu.Item>
+    </Menu.Dropdown>
+  </Menu>
+</Box>
 
       {isRoomDataSuccess && (
         <Modal
@@ -291,6 +302,7 @@ export default function ChatSidebar({
                   ?.filter((user: any) => !roomUsers?.includes(user?.id))
                   ?.map((user: any) => (
                     <Flex
+                   
                       pos={"relative"}
                       justify={"space-between"}
                       key={user?.id}

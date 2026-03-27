@@ -3,12 +3,13 @@ import ChatSidebar from "./components/ChatSidebar";
 import ChatMessagePanel from "./components/ChatMessage";
 import { useEffect, useState } from "react";
 import { socket } from "../../config/socketConfig";
+import { useMediaQuery } from "@mantine/hooks";
 
 const ChatApp = () => {
   const [selectedChat, setSelectedChat] = useState();
-
+  const isMobile = useMediaQuery('(max-width: 768px)');
   const [newRoomRevicerId, setNewRoomReciverId] = useState();
-
+  const [selectedRoomData, setSelectedRoomData] = useState<any>(null);
   useEffect(() => {
     if (!socket.connected) {
       socket.connect();
@@ -26,10 +27,14 @@ const ChatApp = () => {
 
   useEffect(() => {
     if (selectedChat) {
-      console.log("Emitting room:", selectedChat); // debug
+      console.log("Selected chat for new room " , selectedChat)
       socket.emit("join-room", selectedChat);
     }
   }, [selectedChat]);
+
+
+
+
 
   return (
     <Grid
@@ -46,21 +51,23 @@ const ChatApp = () => {
           height: "100%",
         }}
       >
-        <ChatSidebar
+        {isMobile && selectedChat != null ?  <ChatMessagePanel selectedRoomData={selectedRoomData}   setSelectedChat={setSelectedChat} selectedChat={selectedChat} /> :     <ChatSidebar  setSelectedRoomData={setSelectedRoomData}
           newRoomRevicerId={newRoomRevicerId}
           setNewRoomReciverId={setNewRoomReciverId}
-          selectedChat={selectedChat}
+          selectedChat={selectedChat} 
           setSelectedChat={setSelectedChat}
-        />
+        /> }
+
+
       </Grid.Col>
 
-      <Grid.Col
+      <Grid.Col visibleFrom="md"
         span={{ sm: 12, md: 9 }}
         style={{
           height: "100vh",
         }}
       >
-        <ChatMessagePanel selectedChat={selectedChat} />
+        <ChatMessagePanel selectedRoomData={selectedRoomData} setSelectedChat={setSelectedChat} selectedChat={selectedChat} />
       </Grid.Col>
     </Grid>
   );

@@ -33,10 +33,8 @@ const LoginPage = () => {
   const loginMuatation = useMutation({
     mutationFn: (payload: loginPayload) => loginService(payload),
     onSuccess: (data) => {
-      console.log("Data ", data)
       if(data?.payload?.success){
         refetchProfile();
-      console.log("Login Success", data);
       Cookies.set('access_token', data?.payload?.data?.access_token);
       Cookies.set('refresh_token', data?.payload?.data?.refresh_token);
       navigate("/chat");
@@ -44,13 +42,12 @@ const LoginPage = () => {
       setData(data?.payload?.data)
       }
       else {
-        console.log("sdadsad",data?.payload?.message);
-        toast.error('dsad');
+        toast.error(data?.response?.data?.message);
       }
 
     },
-    onError: (err) => {
-      toast.error("Login Failed");
+    onError: (err:any) => {
+      toast.error(err?.response?.data?.message);
     }
   })
 
