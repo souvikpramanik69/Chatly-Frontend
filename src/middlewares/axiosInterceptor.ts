@@ -1,4 +1,4 @@
-import axios from "axios";
+
 import { authConfig } from "../config/axios";
 import Cookies from "js-cookie";
 authConfig.interceptors.request.use(

@@ -30,7 +30,7 @@ import { useRooms } from "../../../hooks/useRooms";
 import { useUserProfile } from "../../../hooks/useUserProfile";
 import { useAddRoom } from "../../../hooks/useAddRoom";
 import { socket } from "../../../config/socketConfig";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { ConversationItem } from "./ConversationItem";
 // ─── Static Data ─────────────────────────────────────────────
 
@@ -53,7 +53,7 @@ export default function ChatSidebar({
   setSelectedRoomData
 }: chatSidebarPropsTypes) {
   const [opened, { open, close }] = useDisclosure(false);
-  const { removeData, data } = useUserStore();
+  const { removeData } = useUserStore();
   const { data: userProfile, isSuccess: isProfileDataSuccesss } =
     useUserProfile();
   const { data: userData } = useUsers({

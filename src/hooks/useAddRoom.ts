@@ -13,7 +13,7 @@ export const useAddRoom = (newRoomRevicerId:any) => {
     mutationFn:  () => {
       return addNewRoomService({receiverId:newRoomRevicerId as any,senderId:userProfile?.payload?.data?.id})
     },
-    onSuccess: (data) => {
+    onSuccess: () => {
       refetchRooms();
       refetchUsers();
     },
